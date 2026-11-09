@@ -1,13 +1,13 @@
 [package]
-name = "vault-core"
+name = "wovault"
 version = "0.1.0"
 edition = "2021"
 rust-version = "1.84"
 authors = ["Vault Contributors"]
 license = "MIT OR Apache-2.0"
-description = "Encrypted backup library with write-only ingest support"
-repository = "https://github.com/vault-project/vault-core"
-keywords = ["encryption", "backup", "hpke", "cryptography"]
+description = "Write-only vault: encrypted backup library with HPKE-sealed write-only ingest"
+repository = "https://github.com/ronykris/vault-core"
+keywords = ["encryption", "backup", "hpke", "write-only", "vault"]
 categories = ["cryptography", "encoding"]
 
 [dependencies]

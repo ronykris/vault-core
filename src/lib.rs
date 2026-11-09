@@ -1,12 +1,12 @@
-//! # vault-core
+//! # wovault
 //!
-//! Encrypted backup library with write-only ingest support.
+//! **Write-Only Vault**: Encrypted backup library with HPKE-sealed write-only ingest support.
 //!
 //! **WARNING: This crate is unaudited and in active development. Do not use in production.**
 //!
 //! ## Design
 //!
-//! vault-core provides a split-key architecture where background workers can encrypt
+//! wovault provides a split-key architecture where background workers can encrypt
 //! and seal data without holding any decryption secret:
 //!
 //! - Workers generate random per-item keys and encrypt content
@@ -22,7 +22,7 @@
 //! ### Encrypting a file blob (write-only ingest)
 //!
 //! ```rust
-//! use vault_core::*;
+//! use wovault::*;
 //!
 //! # fn main() -> Result<(), String> {
 //! // Generate a random file key (done by background worker)
@@ -43,7 +43,7 @@
 //! ### Write-only ingest with HPKE sealing
 //!
 //! ```rust
-//! use vault_core::*;
+//! use wovault::*;
 //!
 //! # fn main() -> Result<(), String> {
 //! // Setup: unlocked client generates ingest keypair
@@ -74,7 +74,7 @@
 //! ### Password-based vault unlocking
 //!
 //! ```rust
-//! use vault_core::*;
+//! use wovault::*;
 //!
 //! # fn main() -> Result<(), String> {
 //! // Create vault: generate VMK and wrap it
@@ -103,7 +103,7 @@
 //! ### Recovery phrase generation and usage
 //!
 //! ```rust
-//! use vault_core::*;
+//! use wovault::*;
 //!
 //! # fn main() -> Result<(), String> {
 //! // Generate 24-word BIP-39 recovery phrase
@@ -145,9 +145,9 @@ pub use types::{CacheKey, FileKey, IndexKey, PasswordKey, RecoveryKey, VaultMast
 // Export format types for M6 inbox processing
 pub use format::record::{BlobRef, ItemKind, ItemRecord, Source, SourceType, ThumbRef};
 
-/// Hello world function for M0 UniFFI integration test
+/// Hello world function for UniFFI integration test
 pub fn hello_vault() -> String {
-    "Hello from vault-core!".to_string()
+    "Hello from wovault!".to_string()
 }
 
 #[cfg(test)]
@@ -156,6 +156,6 @@ mod tests {
 
     #[test]
     fn test_hello_vault() {
-        assert_eq!(hello_vault(), "Hello from vault-core!");
+        assert_eq!(hello_vault(), "Hello from wovault!");
     }
 }

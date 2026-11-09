@@ -2,7 +2,6 @@
 /target/
 **/*.rs.bk
 *.pdb
-Cargo.lock
 
 # IDE
 .vscode/
@@ -15,5 +14,7 @@ Cargo.lock
 .DS_Store
 Thumbs.db
 
+# Documentation - only README.md and golden/METADATA.md for public repo
 *.md
+!README.md
 !golden/METADATA.md
