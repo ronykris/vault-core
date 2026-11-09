@@ -11,18 +11,19 @@ pub struct DeviceSigningKey {
 }
 
 /// Generate a new Ed25519 signing keypair for a device
-pub fn generate_device_signing_key() -> DeviceSigningKey {
+pub fn generate_device_signing_key() -> Result<DeviceSigningKey, String> {
     // Generate 32 random bytes for the secret key
     let mut secret_bytes = [0u8; 32];
-    getrandom::getrandom(&mut secret_bytes).expect("getrandom failed");
+    getrandom::getrandom(&mut secret_bytes)
+        .map_err(|e| format!("getrandom failed: {}", e))?;
 
     let signing_key = SigningKey::from_bytes(&secret_bytes);
     let verifying_key = signing_key.verifying_key();
 
-    DeviceSigningKey {
+    Ok(DeviceSigningKey {
         signing_key: signing_key.to_bytes().to_vec(),
         verifying_key: verifying_key.to_bytes().to_vec(),
-    }
+    })
 }
 
 /// Sign data with Ed25519
@@ -132,21 +133,21 @@ mod tests {
 
     #[test]
     fn test_generate_device_signing_key() {
-        let keypair = generate_device_signing_key();
+        let keypair = generate_device_signing_key().unwrap();
 
         // Ed25519 keys are 32 bytes
         assert_eq!(keypair.signing_key.len(), 32);
         assert_eq!(keypair.verifying_key.len(), 32);
 
         // Generate another - should be different
-        let keypair2 = generate_device_signing_key();
+        let keypair2 = generate_device_signing_key().unwrap();
         assert_ne!(keypair.signing_key, keypair2.signing_key);
         assert_ne!(keypair.verifying_key, keypair2.verifying_key);
     }
 
     #[test]
     fn test_sign_verify_round_trip() {
-        let keypair = generate_device_signing_key();
+        let keypair = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123u64;
         let enc = vec![0xaa; 32];
@@ -164,8 +165,8 @@ mod tests {
 
     #[test]
     fn test_wrong_verifying_key_fails() {
-        let keypair = generate_device_signing_key();
-        let wrong_keypair = generate_device_signing_key();
+        let keypair = generate_device_signing_key().unwrap();
+        let wrong_keypair = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123u64;
         let enc = vec![0xaa; 32];
@@ -187,7 +188,7 @@ mod tests {
 
     #[test]
     fn test_wrong_device_id_fails() {
-        let keypair = generate_device_signing_key();
+        let keypair = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let wrong_device_id = [0x99; 16];
         let seq = 123u64;
@@ -210,7 +211,7 @@ mod tests {
 
     #[test]
     fn test_wrong_seq_fails() {
-        let keypair = generate_device_signing_key();
+        let keypair = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123u64;
         let enc = vec![0xaa; 32];
@@ -226,7 +227,7 @@ mod tests {
 
     #[test]
     fn test_tampered_enc_fails() {
-        let keypair = generate_device_signing_key();
+        let keypair = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123u64;
         let enc = vec![0xaa; 32];
@@ -250,7 +251,7 @@ mod tests {
 
     #[test]
     fn test_tampered_ct_fails() {
-        let keypair = generate_device_signing_key();
+        let keypair = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123u64;
         let enc = vec![0xaa; 32];
@@ -274,7 +275,7 @@ mod tests {
 
     #[test]
     fn test_tampered_signature_fails() {
-        let keypair = generate_device_signing_key();
+        let keypair = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123u64;
         let enc = vec![0xaa; 32];
@@ -294,7 +295,7 @@ mod tests {
     #[test]
     fn test_deterministic_signature() {
         // Ed25519 signatures are deterministic for the same message and key
-        let keypair = generate_device_signing_key();
+        let keypair = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123u64;
         let enc = vec![0xaa; 32];

@@ -95,12 +95,12 @@ pub fn derive_password_key(
 /// - Input: 32 bytes entropy from 24-word BIP-39 phrase
 /// - HKDF-SHA256.Extract(salt="vault/recovery/v1", ikm=entropy)
 /// - HKDF-SHA256.Expand(info="vault/recovery-key/v1", L=32)
-pub fn derive_recovery_key(entropy: &[u8; 32]) -> RecoveryKey {
+pub fn derive_recovery_key(entropy: &[u8; 32]) -> Result<RecoveryKey, String> {
     let hkdf = Hkdf::<Sha256>::new(Some(b"vault/recovery/v1"), entropy);
     let mut rk = [0u8; 32];
     hkdf.expand(b"vault/recovery-key/v1", &mut rk)
-        .expect("HKDF expand failed");
-    RecoveryKey::new(rk)
+        .map_err(|e| format!("HKDF expand failed: {:?}", e))?;
+    Ok(RecoveryKey::new(rk))
 }
 
 /// Derive index encryption key from VMK
@@ -108,12 +108,12 @@ pub fn derive_recovery_key(entropy: &[u8; 32]) -> RecoveryKey {
 /// # Design
 /// - HKDF-SHA256.Extract(salt="", ikm=VMK)
 /// - HKDF-SHA256.Expand(info="vault/index/v1", L=32)
-pub fn derive_index_key(vmk: &VaultMasterKey) -> IndexKey {
+pub fn derive_index_key(vmk: &VaultMasterKey) -> Result<IndexKey, String> {
     let hkdf = Hkdf::<Sha256>::new(Some(b""), vmk.expose_secret());
     let mut k_index = [0u8; 32];
     hkdf.expand(b"vault/index/v1", &mut k_index)
-        .expect("HKDF expand failed");
-    IndexKey::new(k_index)
+        .map_err(|e| format!("HKDF expand failed: {:?}", e))?;
+    Ok(IndexKey::new(k_index))
 }
 
 /// Derive local cache key from VMK (for SQLCipher)
@@ -121,12 +121,12 @@ pub fn derive_index_key(vmk: &VaultMasterKey) -> IndexKey {
 /// # Design
 /// - HKDF-SHA256.Extract(salt="", ikm=VMK)
 /// - HKDF-SHA256.Expand(info="vault/local-cache/v1", L=32)
-pub fn derive_cache_key(vmk: &VaultMasterKey) -> [u8; 32] {
+pub fn derive_cache_key(vmk: &VaultMasterKey) -> Result<[u8; 32], String> {
     let hkdf = Hkdf::<Sha256>::new(Some(b""), vmk.expose_secret());
     let mut k_cache = [0u8; 32];
     hkdf.expand(b"vault/local-cache/v1", &mut k_cache)
-        .expect("HKDF expand failed");
-    k_cache
+        .map_err(|e| format!("HKDF expand failed: {:?}", e))?;
+    Ok(k_cache)
 }
 
 #[cfg(test)]
@@ -188,15 +188,15 @@ mod tests {
     #[test]
     fn test_recovery_key_derivation() {
         let entropy = [0x42; 32];
-        let rk = derive_recovery_key(&entropy);
+        let rk = derive_recovery_key(&entropy).unwrap();
         assert_eq!(rk.expose_secret().len(), 32);
 
         // Same entropy should produce same key
-        let rk2 = derive_recovery_key(&entropy);
+        let rk2 = derive_recovery_key(&entropy).unwrap();
         assert_eq!(rk.expose_secret(), rk2.expose_secret());
 
         // Different entropy should produce different key
-        let rk3 = derive_recovery_key(&[0x99; 32]);
+        let rk3 = derive_recovery_key(&[0x99; 32]).unwrap();
         assert_ne!(rk.expose_secret(), rk3.expose_secret());
     }
 
@@ -204,17 +204,17 @@ mod tests {
     fn test_subkey_derivation() {
         let vmk = VaultMasterKey::new([0x12; 32]);
 
-        let k_index = derive_index_key(&vmk);
+        let k_index = derive_index_key(&vmk).unwrap();
         assert_eq!(k_index.expose_secret().len(), 32);
 
-        let k_cache = derive_cache_key(&vmk);
+        let k_cache = derive_cache_key(&vmk).unwrap();
         assert_eq!(k_cache.len(), 32);
 
         // Index key and cache key should be different
         assert_ne!(k_index.expose_secret(), &k_cache);
 
         // Same VMK should produce same subkeys
-        let k_index2 = derive_index_key(&vmk);
+        let k_index2 = derive_index_key(&vmk).unwrap();
         assert_eq!(k_index.expose_secret(), k_index2.expose_secret());
     }
 

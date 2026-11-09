@@ -37,16 +37,16 @@ impl VaultSession {
     /// Derive the index encryption key (K_index) from the VMK
     ///
     /// This key encrypts index segments on Drive.
-    pub fn derive_index_key(&self) -> IndexKey {
+    pub fn derive_index_key(&self) -> Result<IndexKey, String> {
         kdf::derive_index_key(&self.vmk)
     }
 
     /// Derive the cache encryption key (K_cache) from the VMK
     ///
     /// This key is used for SQLCipher to encrypt the local index cache.
-    pub fn derive_cache_key(&self) -> CacheKey {
-        let bytes = kdf::derive_cache_key(&self.vmk);
-        CacheKey::new(bytes)
+    pub fn derive_cache_key(&self) -> Result<CacheKey, String> {
+        let bytes = kdf::derive_cache_key(&self.vmk)?;
+        Ok(CacheKey::new(bytes))
     }
 
     /// Unwrap the ingest private key from the vault header
@@ -527,11 +527,11 @@ mod tests {
 
         // Unlock with new password and derive same index key
         let new_session = unlock_with_password(&new_header, "new-password").unwrap();
-        let k_index_new = new_session.derive_index_key();
+        let k_index_new = new_session.derive_index_key().unwrap();
 
         // Unlock with old password on old header and derive index key
         let old_session = unlock_with_password(&old_header, "old-password").unwrap();
-        let k_index_old = old_session.derive_index_key();
+        let k_index_old = old_session.derive_index_key().unwrap();
 
         // Index keys should be THE SAME (VMK didn't change)
         assert_eq!(k_index_new.expose_secret(), k_index_old.expose_secret());
@@ -542,14 +542,14 @@ mod tests {
         let result = create_vault("test-password", 19456, 2).unwrap();
         let session = result.session;
 
-        let k_index = session.derive_index_key();
-        let k_cache = session.derive_cache_key();
+        let k_index = session.derive_index_key().unwrap();
+        let k_cache = session.derive_cache_key().unwrap();
 
         // Should be different
         assert_ne!(k_index.expose_secret(), k_cache.expose_secret());
 
         // Should be deterministic
-        let k_index2 = session.derive_index_key();
+        let k_index2 = session.derive_index_key().unwrap();
         assert_eq!(k_index.expose_secret(), k_index2.expose_secret());
     }
 

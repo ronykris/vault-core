@@ -11,7 +11,7 @@
 
 use std::fs;
 use std::path::Path;
-use vault_core::*;
+use wovault::*;
 
 /// Fixed seed RNG for deterministic golden files
 struct FixedRng {

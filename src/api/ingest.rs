@@ -324,7 +324,7 @@ mod tests {
         let (enc, ct) = ctx.seal_item_record(item_record, &device_id, seq).unwrap();
 
         // Sign with context
-        let (signing_key, verifying_key) = generate_device_signing_key();
+        let (signing_key, verifying_key) = generate_device_signing_key().unwrap();
         let sig = ctx.sign_inbox_record(&signing_key, &device_id, seq, &enc, &ct).unwrap();
 
         // Verify signature

@@ -126,7 +126,7 @@ mod tests {
 
     #[test]
     fn test_wrap_unwrap_vmk_with_password() {
-        let vmk = generate_vault_master_key();
+        let vmk = generate_vault_master_key().unwrap();
         let salt = [0x42; 16];
         let pk = derive_password_key("test-password", &salt, 19456, 2, 1).unwrap();
         let vault_id = [0x11; 16];
@@ -140,7 +140,7 @@ mod tests {
 
     #[test]
     fn test_unwrap_vmk_with_wrong_password() {
-        let vmk = generate_vault_master_key();
+        let vmk = generate_vault_master_key().unwrap();
         let salt = [0x42; 16];
         let pk = derive_password_key("correct", &salt, 19456, 2, 1).unwrap();
         let wrong_pk = derive_password_key("wrong", &salt, 19456, 2, 1).unwrap();
@@ -153,7 +153,7 @@ mod tests {
 
     #[test]
     fn test_unwrap_vmk_with_wrong_vault_id() {
-        let vmk = generate_vault_master_key();
+        let vmk = generate_vault_master_key().unwrap();
         let salt = [0x42; 16];
         let pk = derive_password_key("test", &salt, 19456, 2, 1).unwrap();
         let vault_id = [0x11; 16];
@@ -166,7 +166,7 @@ mod tests {
 
     #[test]
     fn test_wrap_unwrap_vmk_with_recovery() {
-        let vmk = generate_vault_master_key();
+        let vmk = generate_vault_master_key().unwrap();
         let phrase = generate_recovery_phrase().unwrap();
         let rk = phrase_to_recovery_key(&phrase).unwrap();
         let vault_id = [0x11; 16];
@@ -180,7 +180,7 @@ mod tests {
 
     #[test]
     fn test_unwrap_vmk_with_wrong_recovery_key() {
-        let vmk = generate_vault_master_key();
+        let vmk = generate_vault_master_key().unwrap();
         let phrase1 = generate_recovery_phrase().unwrap();
         let phrase2 = generate_recovery_phrase().unwrap();
         let rk1 = phrase_to_recovery_key(&phrase1).unwrap();
@@ -194,7 +194,7 @@ mod tests {
 
     #[test]
     fn test_wrap_unwrap_ingest_private_key() {
-        let vmk = generate_vault_master_key();
+        let vmk = generate_vault_master_key().unwrap();
         let vault_id = [0x11; 16];
         let ingest_priv = [0x55; 32];
 
@@ -207,8 +207,8 @@ mod tests {
 
     #[test]
     fn test_unwrap_ingest_with_wrong_vmk() {
-        let vmk1 = generate_vault_master_key();
-        let vmk2 = generate_vault_master_key();
+        let vmk1 = generate_vault_master_key().unwrap();
+        let vmk2 = generate_vault_master_key().unwrap();
         let vault_id = [0x11; 16];
         let ingest_priv = [0x55; 32];
 

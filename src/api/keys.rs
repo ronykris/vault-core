@@ -4,10 +4,11 @@ use crate::crypto::{bip39, kdf};
 use crate::types::{CacheKey, IndexKey, PasswordKey, RecoveryKey, VaultMasterKey, FileKey};
 
 /// Generate a random vault master key (32 bytes)
-pub fn generate_vault_master_key() -> VaultMasterKey {
+pub fn generate_vault_master_key() -> Result<VaultMasterKey, String> {
     let mut bytes = [0u8; 32];
-    getrandom::getrandom(&mut bytes).expect("getrandom failed");
-    VaultMasterKey::new(bytes)
+    getrandom::getrandom(&mut bytes)
+        .map_err(|e| format!("getrandom failed: {}", e))?;
+    Ok(VaultMasterKey::new(bytes))
 }
 
 /// Derive a password key from a master password using Argon2id
@@ -91,16 +92,16 @@ pub fn validate_recovery_phrase(phrase: &str) -> Result<(), String> {
 /// Derive index encryption key from VMK
 ///
 /// Uses HKDF-SHA256 with info = "vault/index/v1"
-pub fn derive_index_key(vmk: &VaultMasterKey) -> IndexKey {
+pub fn derive_index_key(vmk: &VaultMasterKey) -> Result<IndexKey, String> {
     kdf::derive_index_key(vmk)
 }
 
 /// Derive local cache encryption key from VMK (for SQLCipher)
 ///
 /// Uses HKDF-SHA256 with info = "vault/local-cache/v1"
-pub fn derive_cache_key(vmk: &VaultMasterKey) -> CacheKey {
-    let bytes = kdf::derive_cache_key(vmk);
-    CacheKey::new(bytes)
+pub fn derive_cache_key(vmk: &VaultMasterKey) -> Result<CacheKey, String> {
+    let bytes = kdf::derive_cache_key(vmk)?;
+    Ok(CacheKey::new(bytes))
 }
 
 /// Generate a random file key for blob encryption
@@ -116,8 +117,8 @@ mod tests {
 
     #[test]
     fn test_generate_vault_master_key() {
-        let vmk1 = generate_vault_master_key();
-        let vmk2 = generate_vault_master_key();
+        let vmk1 = generate_vault_master_key().unwrap();
+        let vmk2 = generate_vault_master_key().unwrap();
 
         // Keys should be different (random)
         assert_ne!(
@@ -182,21 +183,21 @@ mod tests {
 
     #[test]
     fn test_derive_index_key() {
-        let vmk = generate_vault_master_key();
-        let k_index = derive_index_key(&vmk);
+        let vmk = generate_vault_master_key().unwrap();
+        let k_index = derive_index_key(&vmk).unwrap();
 
         // Deterministic
-        let k_index2 = derive_index_key(&vmk);
+        let k_index2 = derive_index_key(&vmk).unwrap();
         assert_eq!(k_index.expose_secret(), k_index2.expose_secret());
     }
 
     #[test]
     fn test_derive_cache_key() {
-        let vmk = generate_vault_master_key();
-        let k_cache = derive_cache_key(&vmk);
+        let vmk = generate_vault_master_key().unwrap();
+        let k_cache = derive_cache_key(&vmk).unwrap();
 
         // Different from index key
-        let k_index = derive_index_key(&vmk);
+        let k_index = derive_index_key(&vmk).unwrap();
         assert_ne!(k_cache.expose_secret(), k_index.expose_secret());
     }
 

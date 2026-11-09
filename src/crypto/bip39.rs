@@ -45,7 +45,7 @@ pub fn phrase_to_recovery_key(phrase: &str) -> Result<RecoveryKey, String> {
     entropy_array.copy_from_slice(&entropy);
 
     // Derive RecoveryKey using HKDF
-    Ok(crate::crypto::kdf::derive_recovery_key(&entropy_array))
+    crate::crypto::kdf::derive_recovery_key(&entropy_array)
 }
 
 /// Validate a recovery phrase (checksum and word count)

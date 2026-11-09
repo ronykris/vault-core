@@ -15,12 +15,12 @@ use crate::crypto::signatures;
 /// // Store signing_key securely on device
 /// // Enroll verifying_key in vault (written to index segment)
 /// ```
-pub fn generate_device_signing_key() -> ([u8; 32], [u8; 32]) {
-    let keypair = signatures::generate_device_signing_key();
-    (
+pub fn generate_device_signing_key() -> Result<([u8; 32], [u8; 32]), String> {
+    let keypair = signatures::generate_device_signing_key()?;
+    Ok((
         keypair.signing_key.try_into().expect("32 bytes"),
         keypair.verifying_key.try_into().expect("32 bytes"),
-    )
+    ))
 }
 
 /// Sign an inbox record with device Ed25519 key
@@ -94,8 +94,8 @@ mod tests {
 
     #[test]
     fn test_generate_device_signing_key() {
-        let (sk1, vk1) = generate_device_signing_key();
-        let (sk2, vk2) = generate_device_signing_key();
+        let (sk1, vk1) = generate_device_signing_key().unwrap();
+        let (sk2, vk2) = generate_device_signing_key().unwrap();
 
         // Keys should be 32 bytes
         assert_eq!(sk1.len(), 32);
@@ -108,7 +108,7 @@ mod tests {
 
     #[test]
     fn test_sign_verify_round_trip() {
-        let (signing_key, verifying_key) = generate_device_signing_key();
+        let (signing_key, verifying_key) = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123;
         let enc = vec![0xaa; 32];
@@ -128,8 +128,8 @@ mod tests {
 
     #[test]
     fn test_verify_with_wrong_key() {
-        let (signing_key, _) = generate_device_signing_key();
-        let (_, wrong_verifying_key) = generate_device_signing_key();
+        let (signing_key, _) = generate_device_signing_key().unwrap();
+        let (_, wrong_verifying_key) = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123;
         let enc = vec![0xaa; 32];
@@ -144,7 +144,7 @@ mod tests {
 
     #[test]
     fn test_verify_with_wrong_device_id() {
-        let (signing_key, verifying_key) = generate_device_signing_key();
+        let (signing_key, verifying_key) = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let wrong_device_id = [0x99; 16];
         let seq = 123;
@@ -162,7 +162,7 @@ mod tests {
 
     #[test]
     fn test_verify_with_wrong_seq() {
-        let (signing_key, verifying_key) = generate_device_signing_key();
+        let (signing_key, verifying_key) = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123;
         let enc = vec![0xaa; 32];
@@ -177,7 +177,7 @@ mod tests {
 
     #[test]
     fn test_verify_with_tampered_enc() {
-        let (signing_key, verifying_key) = generate_device_signing_key();
+        let (signing_key, verifying_key) = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123;
         let enc = vec![0xaa; 32];
@@ -196,7 +196,7 @@ mod tests {
 
     #[test]
     fn test_verify_with_tampered_ct() {
-        let (signing_key, verifying_key) = generate_device_signing_key();
+        let (signing_key, verifying_key) = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123;
         let enc = vec![0xaa; 32];
@@ -216,7 +216,7 @@ mod tests {
     #[test]
     fn test_signature_is_deterministic() {
         // Ed25519 signatures are deterministic for the same message
-        let (signing_key, _) = generate_device_signing_key();
+        let (signing_key, _) = generate_device_signing_key().unwrap();
         let device_id = [0x42; 16];
         let seq = 123;
         let enc = vec![0xaa; 32];

@@ -4,7 +4,7 @@
 //! all parsers handle invalid input gracefully (no panics, bounded allocations).
 
 use proptest::prelude::*;
-use vault_core::*;
+use wovault::*;
 
 /// Fuzz the STREAM blob header parser
 ///
@@ -138,7 +138,7 @@ fn fuzz_key_wrapping() {
             assert!(unwrapped.is_ok(), "Unwrap with correct key should succeed");
 
             // Try to unwrap with wrong key
-            let wrong_vmk = generate_vault_master_key();
+            let wrong_vmk = generate_vault_master_key().unwrap();
             let result = unwrap_ingest_private_key(&wrong_vmk, &wrapped_bytes, &vault_id);
             assert!(result.is_err(), "Unwrap with wrong key should fail");
 
@@ -227,7 +227,7 @@ fn fuzz_signature_verification() {
         ct in prop::collection::vec(any::<u8>(), 0..100),
         random_sig: [u8; 64],
     )| {
-        let (signing_key, verifying_key) = generate_device_signing_key();
+        let (signing_key, verifying_key) = generate_device_signing_key().unwrap();
 
         // Sign with correct key
         let sig = sign_inbox_record(&signing_key, &device_id, seq, &enc, &ct);
@@ -240,7 +240,7 @@ fn fuzz_signature_verification() {
             assert!(result.is_ok(), "Verify with correct key should succeed");
 
             // Verify with wrong key should fail
-            let (_, wrong_verifying_key) = generate_device_signing_key();
+            let (_, wrong_verifying_key) = generate_device_signing_key().unwrap();
             let result = verify_inbox_record(&wrong_verifying_key, &device_id, seq, &enc, &ct, &sig_array);
             assert!(result.is_err(), "Verify with wrong key should fail");
 
