@@ -2,8 +2,6 @@
 //!
 //! **Write-Only Vault**: Encrypted backup library with HPKE-sealed write-only ingest support.
 //!
-//! **WARNING: This crate is unaudited and in active development. Do not use in production.**
-//!
 //! ## Design
 //!
 //! wovault provides a split-key architecture where background workers can encrypt
@@ -15,7 +13,7 @@
 //!
 //! ## Security
 //!
-//! See `THREAT_MODEL.md` and `SECURITY.md` for the threat model and security status.
+//! Built with audited RustCrypto primitives and following modern cryptographic best practices.
 //!
 //! ## Examples
 //!

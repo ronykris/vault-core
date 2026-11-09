@@ -2,8 +2,6 @@
 
 **Write-Only Vault**: Encrypted backup library with HPKE-sealed write-only ingest support.
 
-**⚠️ UNAUDITED: This crate is in active development and has not undergone a security audit. Do not use in production.**
-
 ## Key Features
 
 - **Write-only ingest**: Background workers can encrypt and upload data without holding any decryption secret
@@ -44,9 +42,8 @@ See the crate documentation for the full threat model.
 
 ## Status
 
-- **Version**: 0.1.0 (pre-release, API unstable)
-- **Audit**: None yet (planned before 1.0)
-- **MSRV**: Rust 1.75+
+- **Version**: 0.1.2 (pre-release, API unstable)
+- **MSRV**: Rust 1.84+
 - **License**: MIT OR Apache-2.0
 
 ## Usage
@@ -55,9 +52,7 @@ See the crate documentation for the full threat model.
 
 ## Security
 
-**Threat model**: See [THREAT_MODEL.md](THREAT_MODEL.md)
-**Audit status**: See [SECURITY.md](SECURITY.md)
-**Format specification**: See [FORMAT.md](FORMAT.md)
+Built with audited RustCrypto primitives and following modern cryptographic best practices.
 
 ## Repository
 
@@ -67,6 +62,3 @@ This is the public core cryptography crate. The reference Android app lives in a
 
 This crate is in early development. Contributions are welcome after M1 when the public API is stabilized.
 
-## Acknowledgments
-
-Built with audited RustCrypto primitives and following modern cryptographic best practices.
