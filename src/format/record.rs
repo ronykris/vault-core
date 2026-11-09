@@ -13,9 +13,13 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum ItemKind {
+    /// Photo item (JPEG, PNG, etc.)
     Photo,
+    /// Video item (MP4, etc.)
     Video,
+    /// Generic file item
     File,
+    /// Text note item (Logseq markdown)
     Note,
 }
 
@@ -23,14 +27,18 @@ pub enum ItemKind {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum SourceType {
+    /// Item from Android MediaStore
     Mediastore,
+    /// Item from file tree sync
     Tree,
+    /// Item received via share intent
     Share,
 }
 
 /// Source tracking information
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Source {
+    /// Type of source (mediastore, tree, or share)
     #[serde(rename = "type")]
     pub source_type: SourceType,
     /// SHA-256 of (source URI + relative path)
@@ -40,18 +48,26 @@ pub struct Source {
 /// Blob reference (encrypted file contents)
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BlobRef {
+    /// Blob ID (16 bytes)
     pub id: [u8; 16],
+    /// File key (32 bytes) for XChaCha20-Poly1305 STREAM
     pub fk: [u8; 32],
+    /// Chunk size as log2 (e.g., 20 = 1 MiB chunks)
     pub chunk_log2: u8,
+    /// Ciphertext size in bytes
     pub ct_size: u64,
+    /// SHA-256 of complete ciphertext
     pub ct_sha256: [u8; 32],
 }
 
 /// Thumbnail reference (optional, encrypted)
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ThumbRef {
+    /// Thumbnail blob ID (16 bytes)
     pub id: [u8; 16],
+    /// File key (32 bytes) for thumbnail encryption
     pub fk: [u8; 32],
+    /// SHA-256 of thumbnail ciphertext
     pub ct_sha256: [u8; 32],
 }
 

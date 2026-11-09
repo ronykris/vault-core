@@ -6,7 +6,9 @@ use crate::types::FileKey;
 /// Blob kind (file or thumbnail)
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum BlobKind {
+    /// Full file blob
     File = 1,
+    /// Thumbnail blob
     Thumbnail = 2,
 }
 

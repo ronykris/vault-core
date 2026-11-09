@@ -7,15 +7,25 @@ use crate::format::header;
 /// Vault header structure (public for M1 golden files, will be opaque in M2)
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct VaultHeader {
+    /// Vault identifier (16 bytes)
     pub vault_id: [u8; 16],
+    /// Key epoch number (for rotation)
     pub key_epoch: u32,
+    /// Argon2 memory cost in KiB
     pub argon2_m_cost: u32,
+    /// Argon2 time cost (iterations)
     pub argon2_t_cost: u32,
+    /// Argon2 parallelism
     pub argon2_p_cost: u32,
+    /// Argon2 salt (16 bytes)
     pub argon2_salt: [u8; 16],
+    /// VMK wrapped with password key (72 bytes)
     pub wrap_pw: Vec<u8>,         // 72 bytes
+    /// VMK wrapped with recovery key (72 bytes)
     pub wrap_rec: Vec<u8>,        // 72 bytes
+    /// HPKE ingest public key (32 bytes)
     pub ingest_pub: [u8; 32],
+    /// HPKE ingest private key, encrypted (72 bytes)
     pub ingest_priv_enc: Vec<u8>, // 72 bytes
 }
 

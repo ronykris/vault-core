@@ -32,10 +32,12 @@ impl std::fmt::Debug for VaultMasterKey {
 pub struct PasswordKey(Secret<[u8; 32]>);
 
 impl PasswordKey {
+    /// Create a new PasswordKey from raw bytes
     pub fn new(bytes: [u8; 32]) -> Self {
         Self(Secret::new(bytes))
     }
 
+    /// Expose the secret key bytes (use with caution)
     pub fn expose_secret(&self) -> &[u8; 32] {
         self.0.expose_secret()
     }
@@ -52,10 +54,12 @@ impl std::fmt::Debug for PasswordKey {
 pub struct RecoveryKey(Secret<[u8; 32]>);
 
 impl RecoveryKey {
+    /// Create a new RecoveryKey from raw bytes
     pub fn new(bytes: [u8; 32]) -> Self {
         Self(Secret::new(bytes))
     }
 
+    /// Expose the secret key bytes (use with caution)
     pub fn expose_secret(&self) -> &[u8; 32] {
         self.0.expose_secret()
     }
@@ -72,10 +76,12 @@ impl std::fmt::Debug for RecoveryKey {
 pub struct FileKey(Secret<[u8; 32]>);
 
 impl FileKey {
+    /// Create a new FileKey from raw bytes
     pub fn new(bytes: [u8; 32]) -> Self {
         Self(Secret::new(bytes))
     }
 
+    /// Expose the secret key bytes (use with caution)
     pub fn expose_secret(&self) -> &[u8; 32] {
         self.0.expose_secret()
     }
@@ -99,10 +105,12 @@ impl std::fmt::Debug for FileKey {
 pub struct IndexKey(Secret<[u8; 32]>);
 
 impl IndexKey {
+    /// Create a new IndexKey from raw bytes
     pub fn new(bytes: [u8; 32]) -> Self {
         Self(Secret::new(bytes))
     }
 
+    /// Expose the secret key bytes (use with caution)
     pub fn expose_secret(&self) -> &[u8; 32] {
         self.0.expose_secret()
     }
@@ -119,10 +127,12 @@ impl std::fmt::Debug for IndexKey {
 pub struct CacheKey(Secret<[u8; 32]>);
 
 impl CacheKey {
+    /// Create a new CacheKey from raw bytes
     pub fn new(bytes: [u8; 32]) -> Self {
         Self(Secret::new(bytes))
     }
 
+    /// Expose the secret key bytes (use with caution)
     pub fn expose_secret(&self) -> &[u8; 32] {
         self.0.expose_secret()
     }
